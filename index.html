@@ -1,1 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1世紀旅行記（仮）｜COLOTEK応募プロジェクト</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1d2e;
+    --ink-soft: #2a2d4e;
+    --sky: #c9d6ff;
+    --dawn: #f7d5dc;
+    --lavender: #d4c5f9;
+    --paper: #faf7f2;
+    --gold: #9c7a4a;
+    --gold-light: #b8956a;
+    --mist: #e8ecf7;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+  .font-mincho { font-family: 'Shippori Mincho', serif; }
+  .font-display { font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+  .hero-bg {
+    background:
+      radial-gradient(ellipse at 20% 30%, rgba(212, 197, 249, 0.6) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(247, 213, 220, 0.7) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(201, 214, 255, 0.6) 0%, transparent 60%),
+      linear-gradient(135deg, #faf7f2 0%, #f0e8ff 50%, #e8f0ff 100%);
+  }
+
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.45;
+    animation: float 14s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.1); }
+    66% { transform: translate(-20px, 30px) scale(0.95); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .ornament::before, .ornament::after {
+    content: '';
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  }
+  .ornament-dark::before, .ornament-dark::after {
+    background: linear-gradient(90deg, transparent, rgba(212, 197, 249, 0.6), transparent);
+  }
+
+  .member-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(250,247,242,0.85));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(156, 122, 74, 0.18);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s;
+  }
+  .member-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px -20px rgba(26, 29, 46, 0.2);
+  }
+
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+  }
+
+  .site-header {
+    backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(250, 247, 242, 0.78);
+    border-bottom: 1px solid rgba(156, 122, 74, 0.15);
+  }
+
+  .status-confirmed {
+    background: linear-gradient(135deg, #d4c19a, #b89870);
+    color: #3d2f1a;
+    font-feature-settings: "palt";
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+  .draft-tag {
+    animation: gentle-pulse 3s ease-in-out infinite;
+  }
+
+  .section-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.875rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .section-num-light {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.875rem;
+    letter-spacing: 0.3em;
+    color: #d4c5f9;
+    text-transform: uppercase;
+  }
+
+  .theme-card-dark {
+    background: rgba(250, 247, 242, 0.06);
+    border: 1px solid rgba(212, 197, 249, 0.25);
+    backdrop-filter: blur(10px);
+  }
+
+  .link-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .pull-quote {
+    position: relative;
+    padding: 2rem 2.5rem;
+  }
+  .pull-quote::before {
+    content: '"';
+    position: absolute;
+    top: -1rem;
+    left: 0.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6rem;
+    line-height: 1;
+    color: #9c7a4a;
+    opacity: 0.35;
+  }
+
+  .nda-notice {
+    background: linear-gradient(135deg, rgba(212, 197, 249, 0.15), rgba(247, 213, 220, 0.15));
+    border: 1px dashed rgba(212, 197, 249, 0.4);
+  }
+
+  @media (max-width: 640px) {
+    .pull-quote { padding: 1.5rem 1.5rem; }
+    .pull-quote::before { font-size: 4rem; top: -0.5rem; }
+  }
+</style>
+</head>
+<body class="antialiased">
+
+<header class="site-header sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4c5f9] to-[#f7d5dc] flex items-center justify-center font-mincho text-[#1a1d2e] text-sm">
+        百
+      </div>
+      <div class="leading-tight">
+        <div class="font-mincho text-[15px] md:text-base font-semibold">1世紀旅行記</div>
+        <div class="text-[10px] text-[#9c7a4a] tracking-widest font-display">— DRAFT TITLE —</div>
+      </div>
+    </div>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-[#1a1d2e]/80">
+      <a href="#about" class="link-underline">企画</a>
+      <a href="#theme" class="link-underline">テーマ</a>
+      <a href="#team" class="link-underline">チーム</a>
+      <a href="https://colo-tek.com" target="_blank" rel="noopener" class="link-underline text-[#9c7a4a]">COLOTEK ↗</a>
+    </nav>
+    <a href="https://x.com/Atg_Tsukimao" target="_blank" rel="noopener" class="text-xs md:text-sm text-[#1a1d2e]/70 hover:text-[#1a1d2e] transition">
+      <span class="hidden sm:inline">代表：</span>月真猫 <span class="text-[#9c7a4a]">@Atg_Tsukimao</span>
+    </a>
+  </div>
+</header>
+
+<section class="relative min-h-[90vh] flex items-center hero-bg grain overflow-hidden">
+  <div class="floating-orb" style="width: 400px; height: 400px; background: #d4c5f9; top: 10%; left: -100px;"></div>
+  <div class="floating-orb" style="width: 350px; height: 350px; background: #f7d5dc; bottom: 15%; right: -80px; animation-delay: -4s;"></div>
+  <div class="floating-orb" style="width: 250px; height: 250px; background: #c9d6ff; top: 50%; left: 40%; animation-delay: -8s;"></div>
+
+  <div class="relative max-w-6xl mx-auto px-6 md:px-12 py-20 md:py-32 grid md:grid-cols-12 gap-8 items-center">
+    <div class="md:col-span-8 reveal">
+      <div class="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-white/70 backdrop-blur border border-white/50">
+        <span class="w-2 h-2 rounded-full bg-[#9c7a4a] draft-tag"></span>
+        <span class="text-xs tracking-[0.2em] text-[#1a1d2e]/75 font-mincho">COLOTEK 応募企画書（DRAFT）</span>
+      </div>
+      <h1 class="font-mincho text-3xl md:text-5xl lg:text-6xl leading-[1.4] mb-6 text-[#1a1d2e]">
+        アニメの<span class="text-[#9c7a4a]">100年</span>を巡り、<br>
+        次の<span class="text-[#9c7a4a]">100年</span>へ。
+      </h1>
+      <p class="font-mincho text-base md:text-lg leading-relaxed text-[#1a1d2e]/85 max-w-xl">
+        世代を超えた、二人だけの旅が始まる——<br>
+        アニメという「夢の言語」が紡ぐ、心温まる物語。
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-4">
+        <a href="#about" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#1a1d2e] text-[#faf7f2] text-sm tracking-wider hover:bg-[#2a2d3e] transition">
+          企画を見る
+          <span>→</span>
+        </a>
+        <a href="https://colo-tek.com" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full border border-[#1a1d2e]/25 text-[#1a1d2e] text-sm tracking-wider hover:bg-white/60 transition">
+          COLOTEK 公式
+          <span class="text-[#9c7a4a]">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="md:col-span-4 reveal hidden md:block">
+      <div class="relative h-[400px] flex items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/50 to-white/20 backdrop-blur-sm border border-white/40"></div>
+        <div class="relative text-center p-8">
+          <div class="font-display text-[#9c7a4a] text-sm tracking-[0.3em] mb-4">EST. 2026</div>
+          <div class="font-mincho text-2xl mb-2 text-[#1a1d2e]">百年の旅路</div>
+          <div class="ornament my-6"></div>
+          <div class="text-xs text-[#1a1d2e]/75 leading-relaxed">
+            脚本　杜崎まさかず<br>
+            総監督・人選　月真猫<br>
+            サポート・動画生成　夢逢真月里
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 text-[#1a1d2e]/50 text-xs tracking-widest">
+    SCROLL ↓
+  </div>
+</section>
+
+<section id="about" class="relative py-24 md:py-32 px-6 md:px-12 bg-[#faf7f2]">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal text-center mb-16">
+      <div class="section-num mb-4">— 01 / About —</div>
+      <h2 class="font-mincho text-3xl md:text-4xl mb-6 text-[#1a1d2e]">企画概要</h2>
+      <div class="ornament max-w-xs mx-auto"></div>
+    </div>
+
+    <div class="reveal grid md:grid-cols-2 gap-12 items-center mb-16">
+      <div>
+        <h3 class="font-mincho text-xl md:text-2xl mb-6 leading-relaxed text-[#1a1d2e]">
+          時代を超えて、<br>心を繋ぐ物語。
+        </h3>
+        <p class="leading-loose text-[#1a1d2e]/85 mb-6">
+          生まれた時代も、見てきた景色も違う二人——。<br>
+          アニメという普遍的な「夢の言語」を介して、<br>
+          世代を超えた心の交流が生まれていきます。
+        </p>
+        <p class="leading-loose text-[#1a1d2e]/85">
+          黎明期の動く絵、戦後の希望、テレビアニメの誕生、デジタルの夜明け、そして——次の100年へ。<br>
+          アニメ表現の100年を辿りながら、誰かにとって「居場所」であり続けたものの尊さを描く、心温まる短編作品です。
+        </p>
+      </div>
+
+      <div class="relative">
+        <div class="bg-gradient-to-br from-[#d4c5f9]/30 to-[#f7d5dc]/30 rounded-2xl p-8 border border-white/50 backdrop-blur">
+          <div class="pull-quote font-mincho text-lg md:text-xl leading-relaxed text-[#1a1d2e]">
+            次の100年、<br>
+            愛されるアニメを創るために——<br>
+            <span class="text-[#9c7a4a] text-sm font-normal tracking-wider not-italic block mt-3">COLOTEKのテーマに、心から挑みます。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal grid grid-cols-2 md:grid-cols-4 gap-px bg-[#9c7a4a]/25 rounded-2xl overflow-hidden">
+      <div class="bg-[#faf7f2] p-6 text-center">
+        <div class="section-num mb-2 text-[10px]">FORMAT</div>
+        <div class="font-mincho text-sm text-[#1a1d2e]">短編アニメ</div>
+      </div>
+      <div class="bg-[#faf7f2] p-6 text-center">
+        <div class="section-num mb-2 text-[10px]">THEME</div>
+        <div class="font-mincho text-sm text-[#1a1d2e]">世代と時代</div>
+      </div>
+      <div class="bg-[#faf7f2] p-6 text-center">
+        <div class="section-num mb-2 text-[10px]">TONE</div>
+        <div class="font-mincho text-sm text-[#1a1d2e]">温かさ・郷愁</div>
+      </div>
+      <div class="bg-[#faf7f2] p-6 text-center">
+        <div class="section-num mb-2 text-[10px]">TARGET</div>
+        <div class="font-mincho text-sm text-[#1a1d2e]">COLOTEK 応募</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="theme" class="relative py-24 md:py-32 px-6 md:px-12 bg-gradient-to-b from-[#1a1d2e] to-[#2a2d4e] text-[#faf7f2] overflow-hidden">
+  <div class="absolute inset-0 opacity-30">
+    <div class="floating-orb" style="width: 300px; height: 300px; background: #d4c5f9; top: 20%; right: 10%;"></div>
+    <div class="floating-orb" style="width: 200px; height: 200px; background: #f7d5dc; bottom: 20%; left: 10%; animation-delay: -6s;"></div>
+  </div>
+
+  <div class="relative max-w-5xl mx-auto">
+    <div class="reveal text-center mb-16">
+      <div class="section-num-light mb-4">— 02 / Essence —</div>
+      <h2 class="font-mincho text-3xl md:text-4xl mb-6 text-[#faf7f2]">作品が描くもの</h2>
+      <div class="ornament ornament-dark max-w-xs mx-auto"></div>
+    </div>
+
+    <div class="reveal nda-notice rounded-2xl p-5 md:p-6 mb-12 text-center max-w-2xl mx-auto">
+      <div class="text-xs tracking-[0.25em] text-[#d4c5f9] font-mincho mb-2">⚠ 機密保持のお願い</div>
+      <p class="text-sm leading-relaxed text-[#faf7f2]">
+        詳細なストーリー・構成・演出案については、ご興味をお持ちいただけました段階で<br class="hidden md:block">
+        個別に企画書をお渡しいたします。本ページでは概要のみ公開しております。
+      </p>
+    </div>
+
+    <div class="reveal grid md:grid-cols-3 gap-6">
+      <div class="theme-card-dark rounded-2xl p-7 text-center">
+        <div class="font-display text-[#d4c5f9] text-sm tracking-widest mb-3">PILLAR 01</div>
+        <div class="font-mincho text-xl mb-4 text-[#faf7f2]">世代を繋ぐ</div>
+        <p class="text-sm leading-loose text-[#faf7f2]/85">
+          生きた時代の違う二人が、<br>
+          アニメを通じて心を通わせる。
+        </p>
+      </div>
+      <div class="theme-card-dark rounded-2xl p-7 text-center">
+        <div class="font-display text-[#d4c5f9] text-sm tracking-widest mb-3">PILLAR 02</div>
+        <div class="font-mincho text-xl mb-4 text-[#faf7f2]">時代を巡る</div>
+        <p class="text-sm leading-loose text-[#faf7f2]/85">
+          アニメ表現100年の変遷を辿る、<br>
+          視覚的なタイムトラベル。
+        </p>
+      </div>
+      <div class="theme-card-dark rounded-2xl p-7 text-center">
+        <div class="font-display text-[#d4c5f9] text-sm tracking-widest mb-3">PILLAR 03</div>
+        <div class="font-mincho text-xl mb-4 text-[#faf7f2]">居場所を描く</div>
+        <p class="text-sm leading-loose text-[#faf7f2]/85">
+          誰かにとっての「救い」だった<br>
+          アニメへの、深い敬意。
+        </p>
+      </div>
+    </div>
+
+    <div class="reveal mt-12 text-center">
+      <p class="font-mincho text-base md:text-lg leading-loose text-[#faf7f2] max-w-2xl mx-auto">
+        手描きの温度、セルの艶、デジタルの広がり——<br>
+        各時代の表現特性を尊重しながら、<br>
+        AI時代だからこそ描ける「次の100年」への接続を目指します。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="team" class="relative py-24 md:py-32 px-6 md:px-12 bg-[#faf7f2]">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal text-center mb-16">
+      <div class="section-num mb-4">— 03 / Team —</div>
+      <h2 class="font-mincho text-3xl md:text-4xl mb-6 text-[#1a1d2e]">確定チームメンバー</h2>
+      <div class="ornament max-w-xs mx-auto"></div>
+      <p class="mt-6 text-[#1a1d2e]/80 max-w-xl mx-auto leading-relaxed text-sm">
+        本企画の中核を担う、確定メンバーです。<br>
+        今後、各分野のクリエイターの方々にも個別にご相談を進めてまいります。
+      </p>
+    </div>
+
+    <div class="reveal grid md:grid-cols-3 gap-6">
+      <div class="member-card rounded-2xl p-7 relative overflow-hidden">
+        <div class="absolute top-4 right-4">
+          <span class="status-confirmed inline-block px-3 py-1 rounded-full text-[10px] tracking-widest font-mincho">確定</span>
+        </div>
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4c5f9] to-[#c9d6ff] flex items-center justify-center mb-5 font-mincho text-2xl text-[#1a1d2e]">
+          月
+        </div>
+        <div class="section-num text-[10px] mb-2">DIRECTOR</div>
+        <h3 class="font-mincho text-xl mb-1 text-[#1a1d2e]">月真猫</h3>
+        <a href="https://x.com/Atg_Tsukimao" target="_blank" rel="noopener" class="text-xs text-[#9c7a4a] hover:underline">@Atg_Tsukimao</a>
+        <div class="mt-4 pt-4 border-t border-[#9c7a4a]/15">
+          <div class="text-xs text-[#1a1d2e]/70 tracking-wider mb-2">役割</div>
+          <p class="text-sm leading-relaxed text-[#1a1d2e] mb-3">総監督・人選・企画統括</p>
+          <p class="text-xs leading-relaxed text-[#1a1d2e]/80">
+            日本拠点の独立系クリエイティブプロデューサー。TSUKI PRODUCTを主宰し、AI音楽・映像・画像制作を横断的に手がける。本企画では総監督として全体構成と人選を担当。
+          </p>
+        </div>
+      </div>
+
+      <div class="member-card rounded-2xl p-7 relative overflow-hidden">
+        <div class="absolute top-4 right-4">
+          <span class="status-confirmed inline-block px-3 py-1 rounded-full text-[10px] tracking-widest font-mincho">確定</span>
+        </div>
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#f7d5dc] to-[#d4c5f9] flex items-center justify-center mb-5 font-mincho text-2xl text-[#1a1d2e]">
+          杜
+        </div>
+        <div class="section-num text-[10px] mb-2">SCREENPLAY</div>
+        <h3 class="font-mincho text-xl mb-1 text-[#1a1d2e]">杜崎まさかず</h3>
+        <a href="https://x.com/morisaki_prison" target="_blank" rel="noopener" class="text-xs text-[#9c7a4a] hover:underline">@morisaki_prison（掌編刑務所）</a>
+        <div class="mt-4 pt-4 border-t border-[#9c7a4a]/15">
+          <div class="text-xs text-[#1a1d2e]/70 tracking-wider mb-2">役割</div>
+          <p class="text-sm leading-relaxed text-[#1a1d2e] mb-3">脚本・物語構成</p>
+          <p class="text-xs leading-relaxed text-[#1a1d2e]/80">
+            小説家・掌編作家。第10回ジャンプホラー小説大賞 最終候補一歩手前作品『先談』、NovelJam 2024参加作『はてのミックス』ほか、ホラー・純文学・ヒューマンドラマを横断する筆致が持ち味。本企画では脚本を担当し、人物の機微と世代間の感情を、温度のある言葉で紡ぎます。
+          </p>
+        </div>
+      </div>
+
+      <div class="member-card rounded-2xl p-7 relative overflow-hidden">
+        <div class="absolute top-4 right-4">
+          <span class="status-confirmed inline-block px-3 py-1 rounded-full text-[10px] tracking-widest font-mincho">確定</span>
+        </div>
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#c9d6ff] to-[#f7d5dc] flex items-center justify-center mb-5 font-mincho text-2xl text-[#1a1d2e]">
+          夢
+        </div>
+        <div class="section-num text-[10px] mb-2">VISUAL / SUPPORT</div>
+        <h3 class="font-mincho text-xl mb-1 text-[#1a1d2e]">夢逢真月里</h3>
+        <a href="https://x.com/NeonTraum" target="_blank" rel="noopener" class="text-xs text-[#9c7a4a] hover:underline">@NeonTraum</a>
+        <div class="mt-4 pt-4 border-t border-[#9c7a4a]/15">
+          <div class="text-xs text-[#1a1d2e]/70 tracking-wider mb-2">役割</div>
+          <p class="text-sm leading-relaxed text-[#1a1d2e] mb-3">動画生成・ビジュアルサポート</p>
+          <p class="text-xs leading-relaxed text-[#1a1d2e]/80">
+            ビジュアル領域での活動歴を持ち、カバーデザインや短尺動画のクリエイティブも手がける。本企画では動画生成を中心に、制作進行とアウトプット品質を支える役割を担う。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal mt-12 p-6 md:p-8 bg-white/70 backdrop-blur border border-[#9c7a4a]/20 rounded-2xl text-center">
+      <div class="section-num mb-3">— Collaborators —</div>
+      <h3 class="font-mincho text-lg md:text-xl mb-3 text-[#1a1d2e]">各分野のスペシャリストの皆様へ</h3>
+      <p class="text-sm leading-loose text-[#1a1d2e]/85 max-w-2xl mx-auto">
+        演出、キャラクター原案、世界観デザイン、音楽、技術支援——<br>
+        本企画では多くの専門領域でご一緒できる方を探しております。<br>
+        ご興味をお持ちいただけましたら、月真猫まで個別にご相談いただけますと幸いです。
+      </p>
+      <a href="https://x.com/Atg_Tsukimao" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-6 px-6 py-2.5 rounded-full bg-[#1a1d2e] text-[#faf7f2] text-sm tracking-wider hover:bg-[#2a2d3e] transition">
+        DMでご相談 <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="relative py-20 px-6 md:px-12 bg-gradient-to-br from-[#1a1d2e] to-[#2a2d4e] text-[#faf7f2]">
+  <div class="max-w-4xl mx-auto text-center">
+    <div class="ornament ornament-dark max-w-xs mx-auto mb-8"></div>
+
+    <p class="font-mincho text-lg md:text-xl leading-loose mb-8 text-[#faf7f2]">
+      本気で、最高の作品を一緒に作りたい——<br>
+      その思いに共感いただける方を、心よりお待ちしております。
+    </p>
+
+    <div class="mb-10 text-sm text-[#faf7f2]/85 leading-relaxed">
+      連絡先 ／ 月真猫<br>
+      <a href="https://x.com/Atg_Tsukimao" target="_blank" rel="noopener" class="text-[#d4c5f9] hover:text-white transition link-underline">
+        @Atg_Tsukimao
+      </a>
+    </div>
+
+    <div class="text-xs text-[#faf7f2]/60 leading-relaxed max-w-md mx-auto pt-8 border-t border-[#faf7f2]/15">
+      ※ 本サイトは企画進行中の草案資料です。<br>
+      タイトル・構成・チーム編成は変更の可能性がございます。<br>
+      ストーリー詳細はお声がけ後、個別にお渡しいたします。
+    </div>
+
+    <div class="mt-10 flex items-center justify-center gap-6 text-xs text-[#faf7f2]/60">
+      <a href="https://colo-tek.com" target="_blank" rel="noopener" class="hover:text-[#d4c5f9] transition">COLOTEK 公式 ↗</a>
+      <span>·</span>
+      <span>© 2026 TSUKI PRODUCT</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+</script>
+
+</body>
+</html>
 
