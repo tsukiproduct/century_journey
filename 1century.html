@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1世紀旅行記 ／ コロテック脚本案A</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;500;700&family=Noto+Sans+JP:wght@300;400&display=swap');
+
+  :root {
+    --bg: #0e0d0b;
+    --paper: #f5f0e8;
+    --ink: #1a1814;
+    --accent: #c8793a;
+    --accent-light: #e8a96a;
+    --muted: #7a7268;
+    --scene-border: #c8793a;
+    --width: 680px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── Header ─── */
+  .site-header {
+    background: var(--bg);
+    border-bottom: 1px solid #2a2820;
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .site-header .logo {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--accent-light);
+    opacity: 0.8;
+  }
+
+  .reading-bar {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    width: 0%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    transition: width 0.1s;
+  }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid #3a3830;
+    color: #9a9080;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { border-color: var(--accent); color: var(--accent); background: rgba(200,121,58,0.1); }
+
+  /* ─── Cover ─── */
+  .cover {
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 60px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 40%, rgba(200,121,58,0.08) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(200,121,58,0.04) 40px);
+  }
+
+  .cover-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--accent);
+    margin-bottom: 28px;
+    opacity: 0.9;
+  }
+
+  .cover-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 700;
+    color: var(--paper);
+    line-height: 1.15;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    text-shadow: 0 0 60px rgba(200,121,58,0.2);
+  }
+
+  .cover-subtitle {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 60px;
+  }
+
+  .cover-meta {
+    font-size: 12px;
+    color: #5a5248;
+    letter-spacing: 0.2em;
+    line-height: 2;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .start-btn {
+    margin-top: 52px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 14px 44px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .start-btn:hover::before { transform: scaleX(1); }
+  .start-btn span { position: relative; z-index: 1; }
+  .start-btn:hover span { color: var(--bg); }
+
+  /* ─── Main Reader ─── */
+  .reader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px 120px;
+    flex: 1;
+    background: var(--bg);
+  }
+  .reader.visible { display: flex; }
+
+  .article {
+    width: 100%;
+    max-width: var(--width);
+  }
+
+  /* ─── Scene ─── */
+  .scene {
+    margin-bottom: 0;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .scene.visible { opacity: 1; transform: translateY(0); }
+
+  .scene-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 48px 0 28px;
+    border-top: 1px solid #1e1d1a;
+  }
+  .scene:first-child .scene-header { border-top: none; padding-top: 0; }
+
+  .scene-num {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+    opacity: 0.9;
+  }
+
+  .scene-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(200,121,58,0.5), transparent);
+  }
+
+  /* ─── Credit tag ─── */
+  .credit-tag {
+    display: inline-block;
+    background: rgba(200,121,58,0.12);
+    border: 1px solid rgba(200,121,58,0.4);
+    color: var(--accent-light);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.12em;
+    margin: 0 0 24px;
+  }
+
+  /* ─── Typography ─── */
+  .scene-body {
+    line-height: 2.2;
+    font-size: 16px;
+    color: #c8c0b0;
+  }
+
+  /* ─── Light mode ─── */
+  body.light { background: var(--paper); }
+  body.light .site-header { background: var(--paper); border-color: #d0c8b8; }
+  body.light .reader { background: var(--paper); }
+  body.light .cover { background: var(--paper); }
+  body.light .cover-title { color: var(--ink); }
+  body.light .scene-body { color: var(--ink); }
+  body.light .scene-header { border-color: #d8d0c0; }
+
+  p.narration {
+    margin-bottom: 1.6em;
+    text-indent: 1em;
+  }
+
+  p.direction {
+    margin-bottom: 1.2em;
+    font-style: italic;
+    color: #9a9080;
+    font-size: 14px;
+    padding-left: 1em;
+    border-left: 2px solid #2a2820;
+    text-indent: 0;
+  }
+  body.light p.direction { color: var(--muted); border-color: #c8c0b0; }
+
+  .dialog-block {
+    margin-bottom: 1.4em;
+    padding-left: 0;
+  }
+
+  .speaker {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+
+  .line {
+    padding-left: 1.2em;
+    color: #d8d0c0;
+    line-height: 2;
+  }
+  body.light .line { color: var(--ink); }
+
+  .note {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: #5a5248;
+    padding: 12px 16px;
+    background: rgba(200,121,58,0.05);
+    border-radius: 2px;
+    margin-bottom: 1.4em;
+    line-height: 1.9;
+  }
+  body.light .note { background: rgba(200,121,58,0.08); color: #7a6858; }
+
+  /* ─── End ─── */
+  .ending {
+    text-align: center;
+    padding: 72px 0 48px;
+    border-top: 1px solid #1e1d1a;
+    margin-top: 32px;
+  }
+  body.light .ending { border-color: #d0c8b8; }
+
+  .ending-title {
+    font-size: 22px;
+    color: var(--accent-light);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+
+  .ending-sub {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: #5a5248;
+    letter-spacing: 0.25em;
+  }
+
+  /* ─── Font size ─── */
+  body.font-sm .scene-body { font-size: 14px; }
+  body.font-lg .scene-body { font-size: 19px; }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2820; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="reading-bar" id="readingBar"></div>
+
+<!-- Cover -->
+<div class="cover" id="cover">
+  <div class="cover-label">コロテック脚本案A</div>
+  <div class="cover-title">1世紀旅行記</div>
+  <div class="cover-subtitle">一世紀を越えて、アニメの世界へ</div>
+  <div class="cover-meta">
+    全13シーン<br>
+    アニメ旅行×家族×記憶
+  </div>
+  <button class="start-btn" onclick="startReading()"><span>読みはじめる</span></button>
+</div>
+
+<!-- Header -->
+<header class="site-header" id="siteHeader" style="display:none">
+  <div class="logo">1世紀旅行記</div>
+  <div class="controls">
+    <button class="btn" onclick="setFont('sm')">小</button>
+    <button class="btn" onclick="setFont('md')">中</button>
+    <button class="btn" onclick="setFont('lg')">大</button>
+    <button class="btn" id="themeBtn" onclick="toggleTheme()">白背景</button>
+    <button class="btn" onclick="backToCover()">表紙へ</button>
+  </div>
+</header>
+
+<!-- Reader -->
+<main class="reader" id="reader">
+<article class="article">
+
+  <!-- ① -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 01</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">モモエの108歳の誕生日が、映美の両親の家の居間で祝われている。しかし、モモエは加齢もあって表情乏しく、言葉もほとんど出せない。祝われていることを理解しているのか、外からではわからない状態だ。</p>
+    </div>
+  </section>
+
+  <!-- ② -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 02</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">何となく流れているだけの居間のテレビでは、『近代アニメ史』を特集したバラエティ番組が放送されている。</p>
+      <p class="direction">テレビの音声</p>
+      <div class="dialog-block">
+        <p class="line">「1920年代に放映された『蒸気機関車ピーチ』がアニメ界にセンセーショナルな影響を与えました。内容は単純明快で、主人公のピーチが大好物のニンジンほしさに、色んな仕事に奮闘するというーー」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">茂樹（缶ビール片手にぼやく）</p>
+        <p class="line">「もうテレビなんて爺さん婆さんしか見とらんけ、昔を振り返る番組ばっかでつまらん」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「でも、もしかしたらモモエちゃん、昔のアニメを振り返れて嬉しいかもよ。リアルタイムでこれも観てたのかも」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">茂樹</p>
+        <p class="line">「東京なんかへ行くと、そんな綺麗事が言えるようになるんか。余裕やのう。ひいばあがいくらアニメ好きかて、100年前のアニメなんて覚えとらんよ」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「そうかな……まだ元気だった頃、アニメの話よく聞かせてくれてたよ。モモエちゃんにとっては、100年前からきっと生活の活力だったんだよ。アンタはアニメを観ないからわかんないかもね」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">茂樹</p>
+        <p class="line">「モモエちゃんってやめ。気持ち悪い。ひいばあでよかやろ。お前も飲め」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「私、車だから」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">茂樹</p>
+        <p class="line">「ええなあ。東京出て、第一線で脳みそいじる機械を開発して、車まで買うて」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「脳みそいじるって……脳神経を活発にする医療器具の開発だよ」</p>
+      </div>
+      <p class="narration">舌打ちして「同じやろ。人体実験の会社じゃ」と悪態をついてトイレに立つ茂樹。千鳥足。</p>
+      <p class="narration">映美、モモエに視線を向ける。モモエはぼんやりとテレビを眺めている。</p>
+    </div>
+  </section>
+
+  <!-- ③ -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 03</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">宴も終盤、映美は父（もしくは母）に「ちょっとモモエちゃんを連れて散歩に行ってくるよ」と言い、車椅子を押して家を出る。それを恨めしそうに睨む、酔っ払った茂樹。</p>
+    </div>
+  </section>
+
+  <!-- ④ 車の中 -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 04</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">向かった先は、有料駐車場に停めた映美の車だった。後部座席にモモエを乗せ、横並びに映美も乗り込んだ。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「モモエちゃん、私、誰だかわかる？」</p>
+      </div>
+      <p class="direction">反応はない。</p>
+      <div class="dialog-block">
+        <p class="line">「あなたのひ孫の映美だよ」</p>
+      </div>
+      <p class="direction">反応はない。</p>
+      <div class="dialog-block">
+        <p class="line">「モモエちゃんのおかげでアニメの世界を知ったんだよ。モモエちゃんに教えてもらったアニメを全部観て……今でも観てるよ」</p>
+      </div>
+      <p class="direction">反応はない。</p>
+      <div class="dialog-block">
+        <p class="line">「モモエちゃんが今でもアニオタだって信じてるよ。お誕生日おめでとう」</p>
+      </div>
+      <p class="narration">映美は足元のダンボールから頭部装着型の機具を取り出し、それをモモエの頭に被せる。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「これ、プレゼント。この機械はね、自分の好きなアニメの映像を脳波として直接脳神経に送ることができるんだ。つまり、アニメの世界で遊べるようになるの。何度も自分で試して平気だったから、安全だよ。</p>
+        <p class="line">モモエちゃんから昔聞いたアニメ、年代順に全部インプットしてきた。体も不自由なく、自分が一番元気だった頃の肉体で、アニメ旅行を楽しめる。一緒にアニメの主人公になろ」</p>
+      </div>
+      <p class="narration">熱く語る映美に対しても、モモエは無反応のまま。切なくなって、映美は心情を吐露してしまう。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「……なんて、ね。本当は自分のために作ったのに。カッコつけちゃって、馬鹿みたい」</p>
+      </div>
+      <p class="narration">足元のダンボールをごそごそ探って、もう一つ機具を取り出す。</p>
+      <div class="dialog-block">
+        <p class="line">「私がアニメの世界に逃げちゃいたかっただけなのに」</p>
+      </div>
+      <p class="narration">自分の頭部に機具を装着して、無理やり笑顔を作る。</p>
+      <div class="dialog-block">
+        <p class="line">「茂樹がさ、私の仕事、人体実験だって。笑っちゃうよね。いつの時代の話だよって」</p>
+      </div>
+      <p class="narration">モモエを見つめているうちに、すぐに笑顔は崩れる。</p>
+      <div class="dialog-block">
+        <p class="line">「茂樹だけじゃないよ、みんなそう言うんだよ」</p>
+      </div>
+      <p class="narration">モモエはぼんやりと虚空を見つめ続ける。</p>
+      <div class="dialog-block">
+        <p class="line">「笑ってよ」</p>
+      </div>
+      <p class="narration">映美は一筋だけ流れた涙を隠すように、モモエを抱きしめる。</p>
+      <div class="dialog-block">
+        <p class="line">「アニメ、教えてくれてありがとう」</p>
+      </div>
+      <p class="narration">抱きしめたまま、モモエと自分の機具にスイッチを入れる。機具から鳴るモーター音が徐々に大きくなり、共鳴するように機具が青白い光を放つ。</p>
+      <div class="dialog-block">
+        <p class="line">「モモエちゃん、愛してる」</p>
+      </div>
+      <p class="narration">画面は光で真っ白になり、モーター音が音階を奏で始める。</p>
+    </div>
+  </section>
+
+  <!-- ④ アニメ世界（1960年代） -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 04-B</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <div class="credit-tag">1960年『魔術使いメリー』</div>
+      <p class="note">※元ネタ『魔法使いサリー』／版権的にOKであれば、サリーのオープニング曲に近いBGMを希望</p>
+      <p class="narration">真っ白な画面が、60年代らしい少しセピアがかった色彩と画風の世界へと変わる。場所は公園。映美はそこで目を覚ます。</p>
+      <p class="narration">遠くに、自分そっくりの女性が杖を振るって「それーっ！」と唐草模様の風呂敷を背負った、いかにも泥棒といった風体の一味を宙に浮かして退治している。どうやらそれは、魔法の杖らしい。</p>
+      <div class="dialog-block">
+        <p class="speaker">若きモモエ（手を振りながら）</p>
+        <p class="line">「あ、映美ちゃんや！映美ちゃーん！」</p>
+      </div>
+      <p class="narration">元気な声で手を振るその女性こそが、若かりし頃のモモエだった。映美とモモエだけは、年代が変わろうと色彩も画風も現代のままだ。</p>
+      <p class="narration">モモエがひょいっと杖で招くと、映美の体が浮いて、モモエのそばまで飛ばされる。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「ひ孫から告白される人生やと思わんかったわぁ」</p>
+      </div>
+      <p class="narration">映美は口をパクパクさせるだけで、返す言葉が出ない。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「こんなもんを作れるんは、わしの血かね。賢い子に育ったのう」</p>
+      </div>
+      <p class="narration">映美は口を手で覆って、顔を赤らめる。その感情を、モモエは目を細めて汲み取った。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「全部伝わっとるよ。ありがとね」</p>
+      </div>
+      <p class="narration">涙を流す映美を笑い飛ばして、モモエが言う。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「泣き虫なんはわしと似んかったんね。さあ、もうわしらはアニメの主人公やで！バディものやね！はしゃぐで！」</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 1970年代 -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 05</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <div class="credit-tag">1970年『宇宙鉄道777』</div>
+      <p class="note">※元ネタ『銀河鉄道999』／パロディの範囲は要相談</p>
+      <p class="narration">メーテルっぽい装いに身を包んだモモエに、映美が「えっ！モモエちゃん、アンドロイドだったの！？」とはしゃぐ。走り出す宇宙列車の車窓越しに、ふたりはキスをしたりする。</p>
+    </div>
+  </section>
+
+  <!-- ⑥ 1980年代 -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 06</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <div class="credit-tag">1980年『ユニコーンボール』</div>
+      <p class="note">※元ネタ『ドラゴンボール』</p>
+      <p class="narration">サイヤ人っぽいモモエが「映美ちゃんのことかー！」と怒って覚醒したり。ベジータ感のある男が映美にビームを放って「きたねえ花火だ」と吐き捨てると、モモエが「綺麗な花火だろー！」と怒鳴り返したりする。</p>
+    </div>
+  </section>
+
+  <!-- ⑦ 1990年代 -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 07</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <div class="credit-tag">1990年『ガングリオン』</div>
+      <p class="note">※元ネタ『エヴァンゲリオン』</p>
+      <p class="narration">エヴァっぽい機体に乗ったモモエが「逃げちゃダメだ」と連呼しているが、「もうやっつけてるよ」と映美が指摘したり。モモエが綾波レイっぽい映美に「そういうときは笑えばいいんだよ」と言ったのをきっかけに、ふたりは腹を抱えて大爆笑したりする。</p>
+      <p class="narration">そんな楽しいひとときのなか、倒したはずの敵にノイズが走り始める。ゲンドーっぽいキャラは応答がなく無表情のまま、虚空を見つめている。音がなくなる。</p>
+      <p class="narration">途端、景色は轟音を立て、高速エレベーターのように風景が流れ落ちる。ふたりの悲鳴。</p>
+    </div>
+  </section>
+
+  <!-- ⑧ 1920年代 -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 08</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">映美とモモエが目を覚ますと、景色のすべてはモノクロだった。丸みを帯びた線路が丘陵に敷かれ、蒸気機関車が黒煙を出して跳ねるように走っている。野原一面はニンジン畑だ。</p>
+      <p class="narration">映美とモモエだけに、色がついている。</p>
+      <p class="narration">モモエにはそれが『蒸気機関車ピーチ』の世界であることがひと目でわかり、大はしゃぎだ。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ（興奮状態で）</p>
+        <p class="line">「ピーチや！」</p>
+      </div>
+      <div class="credit-tag">1920年『蒸気機関車ピーチ』</div>
+      <p class="note">※元ネタ『蒸気船ウィリー』</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「なんしてわかったん！？わしが1番好きなアニメ！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「え、うそ」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「わしの唯一の憩いやったんよ。お父さんには殴られるわ、近所のガキにはおもちゃを壊されるわ、もう散々だったわしを救ってくれたアニメよ！映美ちゃんに前に話したんかな」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「いや、そんなはずーー」</p>
+      </div>
+      <p class="narration">映美は戸惑う。そのはずだった。年代順に組んだアニメのプレイリストが逆行して90年代→20年代に飛ぶわけはなく、何より映美は『蒸気機関車ピーチ』をプレイリストに組んでいなかったからだ。</p>
+      <p class="narration">映美の募る不安をよそに、モモエは蒸気機関車へと駆け出す。</p>
+      <p class="narration">映美とモモエの間の地面が盛り上がり、巨大な化け物が何体も這い出てくる。その姿は、これまでのアニメ旅行で登場した悪党や敵たちの複合体、キメラだ。各年代の色彩がツギハギになっている。</p>
+    </div>
+  </section>
+
+  <!-- ⑨ 現代シーン -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 09</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="direction">現代シーン。</p>
+      <p class="narration">車の中で、寄り添う映美とモモエの頭部の機具に、茂樹が缶ビールをかけている。目は虚ろ。廃人のようにも見える。</p>
+      <div class="dialog-block">
+        <p class="speaker">茂樹</p>
+        <p class="line">「なにが散歩じゃ。嘘ばっかり。ひいばあを実験体にしよって」</p>
+      </div>
+      <p class="narration">空になった缶を握り潰しながら、</p>
+      <div class="dialog-block">
+        <p class="speaker">茂樹</p>
+        <p class="line">「映美よぉ。昔はよう一緒にアニメを見とったやないか。俺ぁいつの間にか、アニメを見れんようになったんよ、お前のことを思い出して惨めたらしくてなぁ。1個しか違わんのやぞ、なしてこんなに差が出るん。わしが地元で土いじっとる間、なしてお前はひとの脳みそなんかいじれるん。お前と俺じゃ何がこんなに違うん」</p>
+      </div>
+      <p class="narration">潰しきった缶を「シカトこいとんちゃうぞ！！！」と怒鳴りつけて映美の頭の機具に投げつけた。</p>
+    </div>
+  </section>
+
+  <!-- ⑩ -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 10</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="direction">アニメ世界へ戻る。（可能なら空き缶が当たったタイミングでシーンをアニメに切り替えたい）</p>
+      <div class="dialog-block">
+        <p class="speaker">映美（手を見て）</p>
+        <p class="line">「痛っ……なんで、痛みは感じないはずなのに」</p>
+      </div>
+      <p class="narration">大きなあざができていた。巨大なキメラが地面をかち割り、その破片が飛んできたのだ。</p>
+      <p class="narration">モモエの身の危険を察した映美は、キメラの攻撃を避けながら必死にモモエの元へ駆け出す。</p>
+      <p class="direction">〈モモエを間一髪で助けたり、攻撃を避けてキメラが木に突っ込んだりするアクションシーン〉</p>
+    </div>
+  </section>
+
+  <!-- ⑪ -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 11</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="narration">攻撃の風圧で蒸気機関車に転がり込むふたり。モモエに血眼で説明する映美。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「モモエちゃん聞いて！機械がバグを起こした！見てこのあざ、この世界に痛覚は存在しないはずなの！でも痛かった。何かのトラブルで脳の痛覚までアニメが侵食してるの！」</p>
+      </div>
+      <p class="narration">説明の間もキメラからの攻撃は続く。しかしモモエは膝からへたり込んで、呆然としていた。先ほどの楽しそうな表情とは違う、感慨と驚嘆の混じったような表情だ。</p>
+      <p class="narration">そこには『蒸気機関車ピーチ』の主人公でありマスコットキャラのピーチが、口笛を吹きながら石炭をスコップで火室に放り込んでいた。石炭庫の扉には「☆8時間働いたらニンジン1本ボーナス☆」と書かれたポスターが貼ってある。</p>
+      <p class="narration">その姿を見て、手で口を抑え涙を流すモモエ。かつての憧れ、辛い現実から救ってくれたヒーローが目の前にいることが、嬉しくて仕方がなかったのだ。</p>
+      <p class="narration">轟音とともに、蒸気機関車の後方の線路がキメラの攻撃によって壊される。飛び跳ねてびっくりするピーチ。その動きは古いアニメのスラップスティックそのものだった。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「モモエちゃん、すぐに機関車も壊されるよ、早く逃げよ！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「待って」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「殺されちゃうよ！脳に繋がってるんだよ！？戻れなくなるよ！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「もうちょっとだけ」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「モモエちゃんってば！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「映美ちゃんがアニメを観る理由って何ね？」</p>
+      </div>
+      <p class="narration">映美は突然の問いに動きを止める。モモエは依然、涙で潤った眼差しをピーチに向けている。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「わしは、アニメだけが居場所やったけん」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「……そんなことを言ってる場合じゃない、早く逃げよ！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「平気よ」</p>
+      </div>
+      <p class="narration">モモエ、映美に顔を向ける。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「わし、ここに来てからすぐ気付いたけん、あの怪物がすることって、全部お父さんとか友達にされたことなんよ。憂さ晴らしに殴られもしたし、汽車の模型も壊された。ピーチばっかりかじりつくように見とったけん、ピーチの好物がニンジンやって知ったお父さんはニンジンをわしに叩きつけよったよ」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「え、じゃあ、あれはモモエちゃんのーー」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「そう、トラウマ。映美ちゃんの作ったもんは利口やね、頭に残っとる記憶を全部汲み取っとる」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「……ごめんなさい、私、そんなつもりじゃーー」</p>
+      </div>
+      <p class="narration">モモエは映美の髪を撫でて、首を横に振る。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「だから平気なんよ。だってそのとき救ってくれたんは、アニメやもん。ピーチやもんね」</p>
+      </div>
+      <p class="narration">モモエは映美を抱いて、「連れてきてくれてありがとう」と耳元で声を震わせてつぶやく。</p>
+      <p class="narration">映美はモモエの言葉を聞いて、自分がアニメを観る理由を思い出す。</p>
+      <p class="direction">（可能であれば、現実の社会で苦しむ映美と、家でアニメを観て泣き笑いする映美のフラッシュバックを挿入したい）</p>
+      <p class="narration">世知辛く、うまくいかないことばかりの現実の中で、アニメは居場所になってくれていた。アニメが、自分を生かしてくれていた。</p>
+      <p class="narration">モモエの腕の中で、映美はふたりの様子に拍手をして、どこから出したのかわからないバカでかいクラッカーを鳴らし、自分でびっくりするピーチの姿を見て、二つ目の気付きを得た。</p>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「これって、逃げじゃないんだね」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「ん？」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「モモエちゃん、わかったよ」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「なんが？」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「戻れる方法。ピーチに救ってもらうんだよ！」</p>
+      </div>
+      <p class="narration">モモエはあまりピンと来ていない様子だが、映美は肩を叩いてすぐに畑のニンジンを一本引き抜きにいく。</p>
+      <p class="direction">（ここでモモエと映美が命からがら汽車から飛び降りてニンジンを収穫するアクション）</p>
+      <p class="narration">ピーチを誘導する。ここはカートゥーンの世界だ。線路から外れてドタドタと走る汽車がキメラに突っ込み、画面に『BOM!!』と大きく表示される。</p>
+      <p class="narration">トラウマを乗り越えることで脳内のストーリーを完結させて、アニメを終わらせたのだった。</p>
+    </div>
+  </section>
+
+  <!-- ⑫ -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 12</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="direction">現実シーン。</p>
+      <p class="narration">映美の思惑は成功し、モモエが目を覚ます。周りには心配して涙ぐむ家族たち。あまりに長い散歩だったからと、映美の両親が心配して探しにきたのだという。</p>
+      <p class="narration">茂樹の姿はない。映美の父親は茂樹に激しく怒っている。</p>
+      <p class="narration">モモエは映美に目を向ける。映美は依然、ビールで濡れたまま眠っている。</p>
+      <p class="narration">モモエは映美の両親に、ひねり出すように声を出した。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「なあ……頼みが……」</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑬ -->
+  <section class="scene">
+    <div class="scene-header">
+      <span class="scene-num">SCENE 13</span>
+      <div class="scene-line"></div>
+    </div>
+    <div class="scene-body">
+      <p class="direction">アニメ世界へ戻る。</p>
+      <p class="narration">映美は、自分がよく観ていた00年代アニメの世界にいた。砂漠の真ん中。ひとり取り残され、呆然と立ち尽くす映美。</p>
+      <p class="narration">手元にはモノクロのニンジン。モモエが現実世界に戻れているかどうかを思うが、結論は出ない。大好きなモモエに酷いことをしてしまった罪悪感に押しつぶされそうになり、映美はニンジンを額に当ててしゃがみ込む。</p>
+      <p class="narration">そこへ、遠くから色彩豊かなパレードがやってくる。華やかで奇妙なBGM。</p>
+      <p class="narration">アニメ世界へ戻ってきたモモエが、パレードの中心の高座で王冠を被ってやってくる。</p>
+      <p class="direction">（元ネタ『パプリカ』）</p>
+      <div class="dialog-block">
+        <p class="speaker">映美（目を丸くして）</p>
+        <p class="line">「どうして！？」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「どうしても何も、映美ちゃんのトラウマをぶっ飛ばしにきたんよ！」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">映美</p>
+        <p class="line">「戻ったんじゃないの！？」</p>
+      </div>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「戻れたよ。戻れたけど、こっちに戻ってきたんよ。もう現実に戻れる方法はわかっとる、映美ちゃんのトラウマ退治や」</p>
+      </div>
+      <p class="narration">映美の表情に希望が宿る。</p>
+      <div class="dialog-block">
+        <p class="speaker">モモエ</p>
+        <p class="line">「平気よ。ピーチがおったんやもん。映美ちゃんのピーチがいるんやろ、このアニメには」</p>
+      </div>
+      <p class="narration">パレードの玉座から降りて、モモエが手を差し出す。</p>
+      <p class="narration">手を勢いよく繋いだパンっという音で、画面は真っ白になる。</p>
+      <div class="credit-tag" style="margin-top:24px">2026年『1世紀旅行記』</div>
+      <p class="narration" style="text-align:center; letter-spacing:0.2em; color:#9a9080; font-size:14px;">── to 2126年 ──</p>
+    </div>
+  </section>
+
+  <div class="ending">
+    <div class="ending-title">終わり</div>
+    <div class="ending-sub">コロテック脚本案A ／ 1世紀旅行記</div>
+  </div>
+
+</article>
+</main>
+
+<script>
+  function startReading() {
+    document.getElementById('cover').style.display = 'none';
+    document.getElementById('siteHeader').style.display = 'flex';
+    document.getElementById('reader').classList.add('visible');
+    window.scrollTo(0, 0);
+    observeScenes();
+  }
+
+  function backToCover() {
+    document.getElementById('cover').style.display = 'flex';
+    document.getElementById('siteHeader').style.display = 'none';
+    document.getElementById('reader').classList.remove('visible');
+    window.scrollTo(0, 0);
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+    document.getElementById('themeBtn').textContent =
+      document.body.classList.contains('light') ? '黒背景' : '白背景';
+  }
+
+  function setFont(size) {
+    document.body.classList.remove('font-sm', 'font-lg');
+    if (size !== 'md') document.body.classList.add('font-' + size);
+  }
+
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    document.getElementById('readingBar').style.width = pct + '%';
+  });
+
+  // Intersection observer for scene fade-in
+  function observeScenes() {
+    const scenes = document.querySelectorAll('.scene');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    scenes.forEach(s => io.observe(s));
+  }
+</script>
+</body>
+</html>
